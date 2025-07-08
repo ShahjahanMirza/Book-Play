@@ -16,6 +16,30 @@ This file tracks all errors encountered during development, solutions applied, a
 
 ## Current Errors
 
+### Error #003 - 2025-01-08 - Path Mapping Issues
+**Issue**: TypeScript cannot resolve path mappings for existing Expo template files
+**Context**: Running `npm run type-check` after setting up custom src/ structure
+**Error Details**:
+- Cannot find module '@/constants/Colors' - template expects constants in root
+- Cannot find module '@/components/useColorScheme' - template expects components in root
+- Cannot find module '@/components/EditScreenInfo' - template expects components in root
+- Path mapping configured for src/ but template files expect root-level imports
+
+**Solution Applied**:
+1. Updated all existing Expo template files to use relative imports instead of @ aliases
+2. Changed imports in app/(tabs)/_layout.tsx, index.tsx, two.tsx
+3. Updated imports in app/+not-found.tsx, _layout.tsx, modal.tsx
+4. Fixed imports in components/EditScreenInfo.tsx and Themed.tsx
+5. Removed unused @ts-expect-error directive in ExternalLink.tsx
+6. Kept Metro and TypeScript configs for src/ structure intact
+
+**Status**: RESOLVED
+**Notes**: Template files now use relative imports while our new src/ structure uses @ aliases. This maintains compatibility while allowing our organized structure.
+
+---
+
+## Current Errors
+
 ### Error #001 - 2025-01-08 - TypeScript Configuration
 **Issue**: TypeScript compilation errors due to strict configuration and missing type declarations
 **Context**: Running `npm run type-check` after initial project setup
@@ -57,8 +81,8 @@ This file tracks all errors encountered during development, solutions applied, a
 ---
 
 ## Resolved Errors Summary
-- **Total Errors**: 2
-- **Resolved**: 2
+- **Total Errors**: 3
+- **Resolved**: 3
 - **Pending**: 0
 - **Partial**: 0
 
