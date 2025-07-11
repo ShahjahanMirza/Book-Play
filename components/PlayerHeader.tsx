@@ -1,5 +1,5 @@
 // Custom header for player screens with notifications and messages
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -34,35 +34,8 @@ export const PlayerHeader: React.FC<PlayerHeaderProps> = ({
   const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [unreadMessages, setUnreadMessages] = useState(0);
 
-  useEffect(() => {
-    if (user) {
-      loadUnreadCounts();
-      // Set up real-time subscriptions for unread counts
-      const notificationsSubscription = supabase
-        .channel('notifications-count')
-        .on('postgres_changes', 
-          { event: '*', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` },
-          () => loadUnreadCounts()
-        )
-        .subscribe();
-
-      const messagesSubscription = supabase
-        .channel('messages-count')
-        .on('postgres_changes',
-          { event: '*', schema: 'public', table: 'messages', filter: `receiver_id=eq.${user.id}` },
-          () => loadUnreadCounts()
-        )
-        .subscribe();
-
-      return () => {
-        notificationsSubscription.unsubscribe();
-        messagesSubscription.unsubscribe();
-      };
-    }
-  }, [user]);
-
-  const loadUnreadCounts = async () => {
-    if (!user) return;
+  const loadUnreadCounts = useCallback(async () => {
+    if (!user?.id) return;
 
     try {
       // Load unread notifications count
@@ -84,7 +57,35 @@ export const PlayerHeader: React.FC<PlayerHeaderProps> = ({
     } catch (error) {
       console.error('Error loading unread counts:', error);
     }
-  };
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (!user?.id) return;
+
+    loadUnreadCounts();
+
+    // Set up real-time subscriptions for unread counts
+    const notificationsSubscription = supabase
+      .channel(`player-notifications-${user.id}`)
+      .on('postgres_changes',
+        { event: '*', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` },
+        () => setTimeout(loadUnreadCounts, 100)
+      )
+      .subscribe();
+
+    const messagesSubscription = supabase
+      .channel(`player-messages-${user.id}`)
+      .on('postgres_changes',
+        { event: '*', schema: 'public', table: 'messages', filter: `receiver_id=eq.${user.id}` },
+        () => setTimeout(loadUnreadCounts, 100)
+      )
+      .subscribe();
+
+    return () => {
+      notificationsSubscription.unsubscribe();
+      messagesSubscription.unsubscribe();
+    };
+  }, [user?.id, loadUnreadCounts]);
 
   const handleNotificationsPress = () => {
     setShowNotifications(true);

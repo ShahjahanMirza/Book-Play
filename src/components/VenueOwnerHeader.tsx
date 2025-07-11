@@ -1,5 +1,5 @@
 // Custom header for venue owner screens with notifications and messages
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -36,32 +36,58 @@ export const VenueOwnerHeader: React.FC<VenueOwnerHeaderProps> = ({
   const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [unreadMessages, setUnreadMessages] = useState(0);
 
-  useEffect(() => {
-    if (user) {
-      loadUnreadCounts();
-      // Set up real-time subscriptions for unread counts
-      const notificationsSubscription = supabase
-        .channel('notifications-count')
-        .on('postgres_changes', 
-          { event: '*', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` },
-          () => loadUnreadCounts()
-        )
-        .subscribe();
+  const loadUnreadCounts = useCallback(async () => {
+    if (!user?.id) return;
 
-      const messagesSubscription = supabase
-        .channel('messages-count')
-        .on('postgres_changes',
-          { event: '*', schema: 'public', table: 'messages', filter: `receiver_id=eq.${user.id}` },
-          () => loadUnreadCounts()
-        )
-        .subscribe();
+    try {
+      // Load unread notifications count
+      const { count: notifCount } = await supabase
+        .from('notifications')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('is_read', false);
 
-      return () => {
-        notificationsSubscription.unsubscribe();
-        messagesSubscription.unsubscribe();
-      };
+      // Load unread messages count
+      const { count: msgCount } = await supabase
+        .from('messages')
+        .select('*', { count: 'exact', head: true })
+        .eq('receiver_id', user.id)
+        .eq('is_read', false);
+
+      setUnreadNotifications(notifCount || 0);
+      setUnreadMessages(msgCount || 0);
+    } catch (error) {
+      console.error('Error loading unread counts:', error);
     }
-  }, [user]);
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (!user?.id) return;
+
+    loadUnreadCounts();
+
+    // Set up real-time subscriptions for unread counts
+    const notificationsSubscription = supabase
+      .channel(`venue-owner-notifications-${user.id}`)
+      .on('postgres_changes',
+        { event: '*', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` },
+        () => setTimeout(loadUnreadCounts, 100)
+      )
+      .subscribe();
+
+    const messagesSubscription = supabase
+      .channel(`venue-owner-messages-${user.id}`)
+      .on('postgres_changes',
+        { event: '*', schema: 'public', table: 'messages', filter: `receiver_id=eq.${user.id}` },
+        () => setTimeout(loadUnreadCounts, 100)
+      )
+      .subscribe();
+
+    return () => {
+      notificationsSubscription.unsubscribe();
+      messagesSubscription.unsubscribe();
+    };
+  }, [user?.id, loadUnreadCounts]);
 
   const loadUnreadCounts = async () => {
     if (!user) return;

@@ -1,5 +1,5 @@
 // Header icons for notifications and messages
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   View,
   TouchableOpacity,
@@ -20,36 +20,11 @@ export const HeaderIcons: React.FC = () => {
   const [showMessages, setShowMessages] = useState(false);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [unreadMessages, setUnreadMessages] = useState(0);
+  const subscriptionsRef = useRef<any[]>([]);
 
-  useEffect(() => {
-    if (user) {
-      loadUnreadCounts();
-      // Set up real-time subscriptions for unread counts
-      const notificationsSubscription = supabase
-        .channel('notifications-count')
-        .on('postgres_changes', 
-          { event: '*', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` },
-          () => loadUnreadCounts()
-        )
-        .subscribe();
-
-      const messagesSubscription = supabase
-        .channel('messages-count')
-        .on('postgres_changes',
-          { event: '*', schema: 'public', table: 'messages', filter: `receiver_id=eq.${user.id}` },
-          () => loadUnreadCounts()
-        )
-        .subscribe();
-
-      return () => {
-        notificationsSubscription.unsubscribe();
-        messagesSubscription.unsubscribe();
-      };
-    }
-  }, [user]);
-
-  const loadUnreadCounts = async () => {
-    if (!user) return;
+  // Memoize the loadUnreadCounts function to prevent infinite loops
+  const loadUnreadCounts = useCallback(async () => {
+    if (!user?.id) return;
 
     try {
       // Load unread notifications count
@@ -71,7 +46,48 @@ export const HeaderIcons: React.FC = () => {
     } catch (error) {
       console.error('Error loading unread counts:', error);
     }
-  };
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (!user?.id) return;
+
+    // Load initial counts
+    loadUnreadCounts();
+
+    // Clean up previous subscriptions
+    subscriptionsRef.current.forEach(sub => sub?.unsubscribe?.());
+    subscriptionsRef.current = [];
+
+    // Set up real-time subscriptions for unread counts
+    const notificationsSubscription = supabase
+      .channel(`notifications-count-${user.id}`)
+      .on('postgres_changes',
+        { event: '*', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` },
+        () => {
+          // Use a timeout to debounce rapid updates
+          setTimeout(loadUnreadCounts, 100);
+        }
+      )
+      .subscribe();
+
+    const messagesSubscription = supabase
+      .channel(`messages-count-${user.id}`)
+      .on('postgres_changes',
+        { event: '*', schema: 'public', table: 'messages', filter: `receiver_id=eq.${user.id}` },
+        () => {
+          // Use a timeout to debounce rapid updates
+          setTimeout(loadUnreadCounts, 100);
+        }
+      )
+      .subscribe();
+
+    subscriptionsRef.current = [notificationsSubscription, messagesSubscription];
+
+    return () => {
+      subscriptionsRef.current.forEach(sub => sub?.unsubscribe?.());
+      subscriptionsRef.current = [];
+    };
+  }, [user?.id, loadUnreadCounts]);
 
   const handleNotificationsPress = () => {
     setShowNotifications(true);
@@ -81,15 +97,17 @@ export const HeaderIcons: React.FC = () => {
     setShowMessages(true);
   };
 
-  const closeNotifications = () => {
+  const closeNotifications = useCallback(() => {
     setShowNotifications(false);
-    loadUnreadCounts(); // Refresh counts after viewing
-  };
+    // Refresh counts after a short delay to avoid rapid updates
+    setTimeout(loadUnreadCounts, 200);
+  }, [loadUnreadCounts]);
 
-  const closeMessages = () => {
+  const closeMessages = useCallback(() => {
     setShowMessages(false);
-    loadUnreadCounts(); // Refresh counts after viewing
-  };
+    // Refresh counts after a short delay to avoid rapid updates
+    setTimeout(loadUnreadCounts, 200);
+  }, [loadUnreadCounts]);
 
   return (
     <>
