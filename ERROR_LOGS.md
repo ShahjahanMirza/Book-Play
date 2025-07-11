@@ -80,9 +80,52 @@ This file tracks all errors encountered during development, solutions applied, a
 
 ---
 
+### Error #004 - 2025-01-08 - Expo Tab Navigation on Modal Screens
+**Issue**: Expo tab navigation was showing at the top of venue-details and booking screens
+**Context**: When navigating to venue details or booking screens from player tabs
+**Error Details**: Default Expo router was showing tab navigation on screens that should be full-screen modals
+**Solution Applied**: Added proper screen configurations in _layout.tsx with headerShown: false for venue-details, booking, chat, and forum screens
+**Status**: RESOLVED
+**Notes**: Modal screens now display properly without tab navigation interference
+
+---
+
+### Error #005 - 2025-01-08 - Messages Tab Syntax Error
+**Issue**: SyntaxError: 'return' outside of function in messages.tsx
+**Context**: Loading the messages tab in player navigation
+**Error Details**: Leftover code from template was causing syntax errors
+**Solution Applied**: Cleaned up the messages.tsx file to properly import ConversationsScreen
+**Status**: RESOLVED
+**Notes**: Messages tab now loads correctly with the new messaging system
+
+---
+
+### Error #006 - 2025-01-08 - Booking Slots Not Available
+**Issue**: "No available slots for this date" error when trying to book venues
+**Context**: Selecting date and field in booking screen
+**Error Details**: Venues had no time slots generated in the database
+**Solution Applied**:
+1. Created TimeSlotsService to automatically generate time slots
+2. Updated BookingScreen to check and fix missing time slots
+3. Added utility functions to fix time slots for existing venues
+**Status**: RESOLVED
+**Notes**: Booking system now automatically generates time slots for venues that don't have them
+
+---
+
+### Error #007 - 2025-01-08 - Booking History Database Error
+**Issue**: Error code 42703 - column does not exist when loading booking history
+**Context**: Loading booking history in player profile
+**Error Details**: Database query was trying to access venue_fields relationship incorrectly
+**Solution Applied**: Fixed the booking history query to properly handle field relationships by fetching field data separately
+**Status**: RESOLVED
+**Notes**: Booking history now loads correctly with proper field information
+
+---
+
 ## Resolved Errors Summary
-- **Total Errors**: 3
-- **Resolved**: 3
+- **Total Errors**: 7
+- **Resolved**: 7
 - **Pending**: 0
 - **Partial**: 0
 

@@ -30,7 +30,8 @@ export const APPROVAL_STATUS = {
 } as const;
 
 export const COLORS = {
-  primary: '#007AFF',
+  primary: '#228B22', // Forest Green
+  lightGreen: '#90EE90', // Light Green for backgrounds
   secondary: '#5856D6',
   success: '#34C759',
   warning: '#FF9500',
@@ -40,6 +41,7 @@ export const COLORS = {
   text: '#000000',
   textSecondary: '#8E8E93',
   border: '#C6C6C8',
+  forestGreen: '#228B22',
 };
 
 export const SPACING = {

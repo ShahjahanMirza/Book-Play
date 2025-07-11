@@ -4,7 +4,7 @@
     "slug": "book-and-play",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/Book&Play-Icon.png",
     "scheme": "bookandplay",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -35,7 +35,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/Book&Play-Icon.png",
         "backgroundColor": "#007AFF"
       },
       "edgeToEdgeEnabled": true,
@@ -65,7 +65,7 @@
       [
         "expo-notifications",
         {
-          "icon": "./assets/images/notification-icon.png",
+          "icon": "./assets/images/Book&Play-Icon.png",
           "color": "#007AFF",
           "sounds": ["./assets/sounds/notification.wav"]
         }
@@ -96,7 +96,7 @@
         "origin": false
       },
       "eas": {
-        "projectId": "your-eas-project-id"
+        "projectId": "lckiftcidquupkplmyfv"
       }
     }
   }

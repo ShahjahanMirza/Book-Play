@@ -1,31 +1,27 @@
-import { StyleSheet } from 'react-native';
-
-import EditScreenInfo from '../../components/EditScreenInfo';
-import { Text, View } from '../../components/Themed';
+// Main tab screen - shows different content based on user role
+import React from 'react';
+import { useAuth } from '../../src/contexts/AuthContext';
+import { GuestBrowseScreen } from '../../src/screens/guest/BrowseScreen';
+import { PlayerBrowseScreen } from '../../src/screens/player/PlayerBrowseScreen';
+import { VenueOwnerDashboard } from '../../src/screens/venue-owner/VenueOwnerDashboard';
+import { AdminDashboard } from '../../src/screens/admin/AdminDashboard';
 
 export default function TabOneScreen() {
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Tab One</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <EditScreenInfo path="app/(tabs)/index.tsx" />
-    </View>
-  );
-}
+  const { user, isAuthenticated } = useAuth();
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
-  },
-});
+  // Show guest browse for unauthenticated users
+  if (!isAuthenticated || !user) {
+    return <GuestBrowseScreen />;
+  }
+
+  // Show role-specific screens for authenticated users
+  switch (user.user_type) {
+    case 'admin':
+      return <AdminDashboard />;
+    case 'venue_owner':
+      return <VenueOwnerDashboard />;
+    case 'player':
+    default:
+      return <PlayerBrowseScreen />;
+  }
+}
