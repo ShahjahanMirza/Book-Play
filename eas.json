@@ -10,8 +10,7 @@
         "resourceClass": "m-medium"
       },
       "android": {
-        "buildType": "apk",
-        "gradleCommand": ":app:assembleDebug"
+        "buildType": "apk"
       }
     },
     "preview": {
@@ -20,8 +19,7 @@
         "resourceClass": "m-medium"
       },
       "android": {
-        "buildType": "apk",
-        "gradleCommand": ":app:assembleRelease"
+        "buildType": "apk"
       }
     },
     "production": {
@@ -30,8 +28,7 @@
         "resourceClass": "m-medium"
       },
       "android": {
-        "buildType": "aab",
-        "gradleCommand": ":app:bundleRelease"
+        "buildType": "app-bundle"
       }
     }
   },

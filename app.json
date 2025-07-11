@@ -9,9 +9,18 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "description": "The ultimate futsal booking app for players and venue owners",
-    "keywords": ["futsal", "booking", "sports", "venues", "players"],
+    "keywords": [
+      "futsal",
+      "booking",
+      "sports",
+      "venues",
+      "players"
+    ],
     "privacy": "public",
-    "platforms": ["ios", "android"],
+    "platforms": [
+      "ios",
+      "android"
+    ],
     "splash": {
       "image": "./assets/images/splash-icon.png",
       "resizeMode": "contain",
@@ -42,18 +51,17 @@
       "package": "com.bookandplay.app",
       "versionCode": 1,
       "permissions": [
-        "ACCESS_FINE_LOCATION",
-        "ACCESS_COARSE_LOCATION",
-        "CAMERA",
-        "READ_EXTERNAL_STORAGE",
-        "WRITE_EXTERNAL_STORAGE",
-        "RECORD_AUDIO",
-        "VIBRATE",
-        "RECEIVE_BOOT_COMPLETED",
-        "INTERNET",
-        "ACCESS_NETWORK_STATE"
-      ],
-      "googleServicesFile": "./google-services.json"
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.VIBRATE",
+        "android.permission.RECEIVE_BOOT_COMPLETED",
+        "android.permission.INTERNET",
+        "android.permission.ACCESS_NETWORK_STATE"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -67,7 +75,9 @@
         {
           "icon": "./assets/images/Book&Play-Icon.png",
           "color": "#007AFF",
-          "sounds": ["./assets/sounds/notification.wav"]
+          "sounds": [
+            "./assets/sounds/notification.wav"
+          ]
         }
       ],
       [
@@ -96,7 +106,7 @@
         "origin": false
       },
       "eas": {
-        "projectId": "lckiftcidquupkplmyfv"
+        "projectId": "e702bb73-decc-4766-8f7c-b3169daffc27"
       }
     }
   }
