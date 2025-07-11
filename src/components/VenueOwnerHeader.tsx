@@ -89,30 +89,6 @@ export const VenueOwnerHeader: React.FC<VenueOwnerHeaderProps> = ({
     };
   }, [user?.id, loadUnreadCounts]);
 
-  const loadUnreadCounts = async () => {
-    if (!user) return;
-
-    try {
-      // Load unread notifications count
-      const { count: notifCount } = await supabase
-        .from('notifications')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id)
-        .eq('is_read', false);
-
-      // Load unread messages count
-      const { count: msgCount } = await supabase
-        .from('messages')
-        .select('*', { count: 'exact', head: true })
-        .eq('receiver_id', user.id)
-        .eq('is_read', false);
-
-      setUnreadNotifications(notifCount || 0);
-      setUnreadMessages(msgCount || 0);
-    } catch (error) {
-      console.error('Error loading unread counts:', error);
-    }
-  };
 
   const handleNotificationsPress = () => {
     setShowNotifications(true);
